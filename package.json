@@ -1,0 +1,19 @@
+{
+  "name": "repovideoslot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/@cucumber/cucumber/bin/cucumber-js features"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cucumber/cucumber": "^9.4.0",
+    "chai": "^4.3.7",
+    "selenium-webdriver": "^4.11.1"
+  },
+  "devDependencies": {
+    "cucumber-html-reporter": "^7.1.1"
+  }
+}
