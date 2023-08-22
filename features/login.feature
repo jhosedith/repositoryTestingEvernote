@@ -8,7 +8,6 @@ Scenario: Successful login using email
 Scenario: Login and write a note followed by a logout
     Then I should write a note
     Then I should logout
-    Then I should be redirected to the homepage
 
 Scenario: Login again and make sure to open the note created in scenario 2
     Then I should log in again

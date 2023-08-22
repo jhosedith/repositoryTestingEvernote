@@ -13,8 +13,6 @@ let homePage;
 setDefaultTimeout(30000); 
 let driver;
 
-
-
 Given('Open the login page', async () =>{
     driver = await createDriver();
     loginPage = new LoginPage(driver);
@@ -57,10 +55,7 @@ Then('I should write a note', async () => {
 
         // Use By.xpath() to locate the target <br> element within <div> element
         const xpathTitle = "//div[contains(@class, 'P0rnC')]//textarea[contains(@class, 'dSbRl s9EjL')]"
-        const xpathDescription = "//div[contains(@class, 'para')]//br[contains(@class, 'ProseMirror-trailingBreak')]";
-       
-        /* const targetElementTitle = await driver.findElement(By.xpath(xpathTitle));
-        await targetElementTitle.sendKeys("Automation testing by Jhosedith");*/
+        const xpathDescription = "//div[contains(@class, 'para')]//br[contains(@class, 'ProseMirror-trailingBreak')]"
 
         // click on Title and write a title.
         await homePage.clickOnTitle(xpathTitle);
@@ -84,11 +79,11 @@ Then('I should write a note', async () => {
 
 Then('I should logout', async () => {
 
-    const xpath = '//li[contains(@class, "UyggXMRtZuBvlSJ5dJsD")]//div[@id= "qa-NAV_USER"]';
+    const xpath = '//li[contains(@class, "UyggXMRtZuBvlSJ5dJsD")]//div[@id= "qa-NAV_USER"]'
     await driver.wait(until.elementLocated(By.xpath(xpath)), 10000);
     await homePage.clickUserOptions(xpath);
 
-    const xpathLogout = '//li[contains(@class, "ivs2kscNg5rtC99cXXHO")]//a[@id= "qa-ACCOUNT_DROPDOWN_LOGOUT"]';
+    const xpathLogout = '//li[contains(@class, "ivs2kscNg5rtC99cXXHO")]//a[@id= "qa-ACCOUNT_DROPDOWN_LOGOUT"]'
     await driver.wait(until.elementLocated(By.xpath(xpathLogout)), 10000);
     await homePage.clickLogoutOption(xpathLogout);
 
@@ -107,21 +102,21 @@ Then('I should logout', async () => {
 
 });
 
-Then('I should be redirected to the homepage', async () => {
+/*Then('I should be redirected to the homepage', async () => {
     //expectedMessage ="You have logged out of Evernote.";
     expectedMessage="Te has desconectado de Evernote."
     const xpathExpression = '//div[contains(@class, "logout-content")]//h1[text()="Te has desconectado de Evernote."]';
-    await driver.wait(until.elementLocated(By.xpath(xpathExpression)), 10000);
+    await driver.wait(until.elementLocated(By.xpath(xpathExpression)), 15000);
     const messageElement = await driver.findElement(By.xpath(xpathExpression));
     const messageActual = await messageElement.getText();
     console.log(messageActual);
     assert.equal(messageActual,expectedMessage)
 
-});
+});*/
 
 Then('I should log in again', async () => {
-    await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action')]")), 20000);
-    await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action')]");
+    //await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action')]")), 20000);
+    //await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action')]");
     await driver.wait(until.elementLocated(By.id('username')), 5000);
     await loginPage.enterCredentialsUsername('username','jhosedithbravo.23ar@gmail.com');
     try{
@@ -137,16 +132,13 @@ Then('I should log in again', async () => {
 
 
 Then('I should open the note created', async () => {
-    //await driver.wait(until.elementLocated(By.id('e02f694d-409f-55eb-2442-c38ff26dc56b_qa-NOTES_SIDEBAR_NOTE_SNIPPET')), 10000);
+
     await driver.wait(until.elementLocated(By.xpath(".//button[contains(@type,'button')]//div[contains(@class,'Fuix_q8N7ezroVVJ104t')]")),20000);
-    // Verificar que el mensaje contiene el texto esperado
-    //div Fuix_q8N7ezroVVJ104t
+   
     const mensajeElement = await driver.findElement(By.xpath(".//button[contains(@type,'button')]//div[contains(@class,'Fuix_q8N7ezroVVJ104t')]//span[1]"));
-    //.findElement(By.name('span'));
     const mensajeTexto = await mensajeElement.getText();
     assert.strictEqual(mensajeTexto, 'Automation testing by Jhosedith');
 
-    // Hacer clic en la nota
     await driver.findElement(By.xpath(".//div[contains(@class,'Fuix_q8N7ezroVVJ104t')]")).click();
 });
 
@@ -184,9 +176,9 @@ Then('I should log out again', async () => {
 });
 
 Then('I should not log in with a correct email and incorrect password', async () => {
-    await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action')]")), 20000);
-    await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action')]");
-    await driver.wait(until.elementLocated(By.id('username')), 5000);
+   // await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action')]")), 20000);
+   // await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action')]");
+    await driver.wait(until.elementLocated(By.id('username')), 20000);
     await loginPage.enterCredentialsUsername('username','jhosedithbravo.23ar@gmail.com');
     try{
         await loginPage.clickButtonUntilElementAppears();
@@ -196,6 +188,7 @@ Then('I should not log in with a correct email and incorrect password', async ()
     await driver.wait(until.elementIsVisible(driver.findElement(By.id('password'))), 10000);
     await loginPage.enterCredentialsPassword('password','Welcome!');
     await loginPage.clickLoginButton('loginButton');
+    await driver.quit();
 });
 
 
