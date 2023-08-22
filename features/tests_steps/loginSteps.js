@@ -8,64 +8,63 @@ const HomePage = require('../pages/homePage');
 const assert = require('chai').assert;
 
 
-let loginPage;
-let homePage;
+
 setDefaultTimeout(30000); 
 let driver;
+let consts = new constLogin();
+
 
 Given('Open the login page', async () =>{
+
     driver = await createDriver();
-    loginPage = new LoginPage(driver);
-    homePage = new HomePage(driver)
     driver.manage().window().maximize();
     await navigateToURL(driver,'/intl/en');
+
 });
 
 When('I enter valid credentials', async () => {
-    await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action') and text()='Log In']")), 20000);
-    await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action') and text()='Log In']");
-    await driver.wait(until.elementLocated(By.id('username')), 5000);
-    await loginPage.enterCredentialsUsername('username','jhosedithbravo.23ar@gmail.com');
+    const loginPage = new LoginPage(driver);
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_login_path)), 20000);
+    await loginPage.clickLoginPage(consts.locator_login_path);
+    await driver.wait(until.elementLocated(By.id(consts.locator_username_by_id)), 5000);
+    await loginPage.enterCredentialsUsername(consts.locator_username_by_id,consts.email_to_login);
     try{
         await loginPage.clickButtonUntilElementAppears();
     }catch (error) {
         console.error('Error:', error);
     }
-    await driver.wait(until.elementIsVisible(driver.findElement(By.id('password'))), 10000);
-    await loginPage.enterCredentialsPassword('password','Welcome01!');
+    await driver.wait(until.elementIsVisible(driver.findElement(By.id(consts.locator_password_by_id))), 10000);
+    await loginPage.enterCredentialsPassword(consts.locator_password_by_id,consts.password_to_login);
 
 });
 
 Then('click the login button', async () => {
-    await loginPage.clickLoginButton('loginButton');
+    const loginPage = new LoginPage(driver);
+    await loginPage.clickLoginButton(consts.locator_button_login_by_id);
 });
 
 Then('I should write a note', async () => {
-    const elementLocator = By.id('qa-HOME_NOTE_WIDGET_CREATE_NOTE'); 
-    await driver.wait(until.elementLocated(elementLocator), 30000);
-    await homePage.clickCreateNote('qa-HOME_NOTE_WIDGET_CREATE_NOTE');
+    const homePage = new HomePage(driver);
+    //const elementLocator = By.id(); 
+    await driver.wait(until.elementLocated(By.id(consts.locator_createNote_button_by_id)), 30000);
+    await homePage.clickCreateNote(consts.locator_createNote_button_by_id);
 
     try {
         // Switch to the iframe if it exists qa-COMMON_EDITOR_IFRAME
-        await driver.wait(until.elementLocated(By.id('qa-COMMON_EDITOR_IFRAME')), 10000);
-        const iframeElement = await driver.findElement(By.id('qa-COMMON_EDITOR_IFRAME')); 
+        await driver.wait(until.elementLocated(By.id(consts.locator_frame_document_by_id)), 10000);
+        const iframeElement = await driver.findElement(By.id(consts.locator_frame_document_by_id)); 
         if (iframeElement) {
             await driver.switchTo().frame(iframeElement);
         }
 
-        // Use By.xpath() to locate the target <br> element within <div> element
-        const xpathTitle = "//div[contains(@class, 'P0rnC')]//textarea[contains(@class, 'dSbRl s9EjL')]"
-        const xpathDescription = "//div[contains(@class, 'para')]//br[contains(@class, 'ProseMirror-trailingBreak')]"
-
         // click on Title and write a title.
-        await homePage.clickOnTitle(xpathTitle);
-        await homePage.sendNewNote(xpathTitle, 'Automation testing by Jhosedith');
+        await homePage.clickOnTitle(consts.locator_title_note_by_xpath);
+        await homePage.sendNewNote(consts.locator_title_note_by_xpath, consts.title_note);
 
-        // click on Title and write a title.
-        await driver.wait(until.elementLocated(By.xpath(xpathDescription)), 10000);
-        await homePage.sendNewNote(xpathDescription, 'Automation testing using nodejs, selenium with cucumber');
-       //here I should put a waitUntilLocated maybe located the description in the label in the left side
-        await driver.sleep(5000);
+        // write a description.
+        await driver.wait(until.elementLocated(By.xpath(consts.locator_description_note_by_xpath)), 10000);
+        await homePage.sendNewNote(consts.locator_description_note_by_xpath, consts.description_note);
+        await driver.sleep(2000);
 
         //switch back to the default content
         if (iframeElement) {
@@ -78,31 +77,29 @@ Then('I should write a note', async () => {
 });
 
 Then('I should logout', async () => {
+    const homePage = new HomePage(driver);
 
-    const xpath = '//li[contains(@class, "UyggXMRtZuBvlSJ5dJsD")]//div[@id= "qa-NAV_USER"]'
-    await driver.wait(until.elementLocated(By.xpath(xpath)), 10000);
-    await homePage.clickUserOptions(xpath);
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_option_logout_by_xpath)), 10000);
+    await homePage.clickUserOptions(consts.locator_option_logout_by_xpath);
 
-    const xpathLogout = '//li[contains(@class, "ivs2kscNg5rtC99cXXHO")]//a[@id= "qa-ACCOUNT_DROPDOWN_LOGOUT"]'
-    await driver.wait(until.elementLocated(By.xpath(xpathLogout)), 10000);
-    await homePage.clickLogoutOption(xpathLogout);
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_logout_button_by_xpath)), 10000);
+    await homePage.clickLogoutOption(consts.locator_logout_button_by_xpath);
 
     try {
-        idMessage = 'qa-LOGOUT_CONFIRM_DIALOG_MESSAGE';
-        await driver.wait(until.elementLocated(By.id(idMessage)), 20000);
+        await driver.wait(until.elementLocated(By.id(consts.locator_message_logout_by_id)), 5000);
 
-        // Si se encuentra el mensaje, tomar la acción necesaria (hacer logout)
-        idConfirmLogout= 'qa-LOGOUT_CONFIRM_DIALOG_CANCEL'
-        await driver.wait(until.elementLocated(By.id(idConfirmLogout)), 10000);
-        await homePage.clickConfirmLogout(idConfirmLogout);
+        await driver.wait(until.elementLocated(By.id(consts.Locator_Confirm_Logout)), 5000);
+        await homePage.clickConfirmLogout(consts.Locator_Confirm_Logout);
+
     } catch (error) {
-        // La excepción indica que el mensaje no está presente, continuar con el flujo normal
-        console.log('Mensaje de confirmación no encontrado, continuando con el flujo normal del logout');
+        console.log('Confirm message was not found, continue with the logout');
     }
 
 });
 
-/*Then('I should be redirected to the homepage', async () => {
+/*
+I left this code because before appear the home page and now appear the loginpage
+Then('I should be redirected to the homepage', async () => {
     //expectedMessage ="You have logged out of Evernote.";
     expectedMessage="Te has desconectado de Evernote."
     const xpathExpression = '//div[contains(@class, "logout-content")]//h1[text()="Te has desconectado de Evernote."]';
@@ -115,79 +112,77 @@ Then('I should logout', async () => {
 });*/
 
 Then('I should log in again', async () => {
-    //await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action')]")), 20000);
-    //await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action')]");
-    await driver.wait(until.elementLocated(By.id('username')), 5000);
-    await loginPage.enterCredentialsUsername('username','jhosedithbravo.23ar@gmail.com');
+    const loginPage = new LoginPage(driver);
+    
+    await driver.wait(until.elementLocated(By.id(consts.locator_username_by_id)), 5000);
+    await loginPage.enterCredentialsUsername(consts.locator_username_by_id,consts.email_to_login);
     try{
         await loginPage.clickButtonUntilElementAppears();
     }catch (error) {
         console.error('Error:', error);
     }
-    await driver.wait(until.elementIsVisible(driver.findElement(By.id('password'))), 5000);
-    await loginPage.enterCredentialsPassword('password','Welcome01!');
-    await loginPage.clickLoginButton('loginButton');
+    await driver.wait(until.elementIsVisible(driver.findElement(By.id(consts.locator_password_by_id))), 5000);
+    await loginPage.enterCredentialsPassword(consts.locator_password_by_id,consts.password_to_login);
+    await loginPage.clickLoginButton(consts.locator_button_login_by_id);
 
 });
 
 
 Then('I should open the note created', async () => {
 
-    await driver.wait(until.elementLocated(By.xpath(".//button[contains(@type,'button')]//div[contains(@class,'Fuix_q8N7ezroVVJ104t')]")),20000);
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_note_created)),20000);
    
-    const mensajeElement = await driver.findElement(By.xpath(".//button[contains(@type,'button')]//div[contains(@class,'Fuix_q8N7ezroVVJ104t')]//span[1]"));
-    const mensajeTexto = await mensajeElement.getText();
+    const noteCreatedFound = await driver.findElement(By.xpath(consts.locator_title_on_note_created));
+    const mensajeTexto = await noteCreatedFound.getText();
     assert.strictEqual(mensajeTexto, 'Automation testing by Jhosedith');
 
-    await driver.findElement(By.xpath(".//div[contains(@class,'Fuix_q8N7ezroVVJ104t')]")).click();
+    await driver.findElement(By.xpath(consts.locator_to_click_note_created)).click();
 });
 
 Then('I should delete the note created', async () => {
-    await driver.wait(until.elementLocated(By.xpath(".//div[contains(@aria-controls,'qa-ACTIONS_MODAL')]//button[contains(@type,'button')]")),20000);
-    await driver.findElement(By.xpath(".//div[contains(@aria-controls,'qa-ACTIONS_MODAL')]//button[contains(@type,'button')]")).click();
 
-    await driver.wait(until.elementLocated(By.xpath(".//ul[@id='default_dropdown_id']//li[contains(@role,'menuitem')]//a[@id='qa-ACTION_DELETE']")),20000);
-    await driver.findElement(By.xpath(".//ul[@id='default_dropdown_id']//li[contains(@role,'menuitem')]//a[@id='qa-ACTION_DELETE']")).click();
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_options_note)),20000);
+    await driver.findElement(By.xpath(consts.locator_options_note)).click();
+
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_option_delete_note)),20000);
+    await driver.findElement(By.xpath(consts.locator_option_delete_note)).click();
 
 });
 
 Then('I should log out again', async () => {
-    const xpath = '//li[contains(@class, "UyggXMRtZuBvlSJ5dJsD")]//div[@id= "qa-NAV_USER"]';
-    await driver.wait(until.elementLocated(By.xpath(xpath)), 10000);
-    await homePage.clickUserOptions(xpath);
+    const homePage = new HomePage(driver);
 
-    const xpathLogout = '//li[contains(@class, "ivs2kscNg5rtC99cXXHO")]//a[@id= "qa-ACCOUNT_DROPDOWN_LOGOUT"]';
-    await driver.wait(until.elementLocated(By.xpath(xpathLogout)), 10000);
-    await homePage.clickLogoutOption(xpathLogout);
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_option_logout_by_xpath)), 10000);
+    await homePage.clickUserOptions(consts.locator_option_logout_by_xpath);
+
+    await driver.wait(until.elementLocated(By.xpath(consts.locator_logout_button_by_xpath)), 10000);
+    await homePage.clickLogoutOption(consts.locator_logout_button_by_xpath);
 
     try {
-        idMessage = 'qa-LOGOUT_CONFIRM_DIALOG_MESSAGE';
-        await driver.wait(until.elementLocated(By.id(idMessage)), 20000);
+        await driver.wait(until.elementLocated(By.id(consts.locator_message_logout_by_id)), 20000);
 
-        // Si se encuentra el mensaje, tomar la acción necesaria (hacer logout)
-        idConfirmLogout= 'qa-LOGOUT_CONFIRM_DIALOG_CANCEL'
-        await driver.wait(until.elementLocated(By.id(idConfirmLogout)), 10000);
-        await homePage.clickConfirmLogout(idConfirmLogout);
+        await driver.wait(until.elementLocated(By.id(consts.Locator_Confirm_Logout)), 10000);
+        await homePage.clickConfirmLogout(consts.Locator_Confirm_Logout);
     } catch (error) {
-        // La excepción indica que el mensaje no está presente, continuar con el flujo normal
-        console.log('Mensaje de confirmación no encontrado, continuando con el flujo normal.');
+
+        console.log('Confirm message was not found, continue with the logout');
     }
 
 });
 
 Then('I should not log in with a correct email and incorrect password', async () => {
-   // await driver.wait(until.elementLocated(By.xpath(".//a[contains(@href,'https://www.evernote.com/Login.action')]")), 20000);
-   // await loginPage.clickLoginPage(".//a[contains(@href,'https://www.evernote.com/Login.action')]");
-    await driver.wait(until.elementLocated(By.id('username')), 20000);
-    await loginPage.enterCredentialsUsername('username','jhosedithbravo.23ar@gmail.com');
+    const loginPage = new LoginPage(driver);
+
+    await driver.wait(until.elementLocated(By.id(consts.locator_username_by_id)), 20000);
+    await loginPage.enterCredentialsUsername(consts.locator_username_by_id,consts.email_to_login);
     try{
         await loginPage.clickButtonUntilElementAppears();
     }catch (error) {
         console.error('Error:', error);
     }
-    await driver.wait(until.elementIsVisible(driver.findElement(By.id('password'))), 10000);
-    await loginPage.enterCredentialsPassword('password','Welcome!');
-    await loginPage.clickLoginButton('loginButton');
+    await driver.wait(until.elementIsVisible(driver.findElement(By.id(consts.locator_password_by_id))), 10000);
+    await loginPage.enterCredentialsPassword(consts.locator_password_by_id,consts.password_wrong_to_login);
+    await loginPage.clickLoginButton(consts.locator_button_login_by_id);
     await driver.quit();
 });
 
