@@ -8,11 +8,9 @@ const HomePage = require('../pages/homePage');
 const assert = require('chai').assert;
 
 
-
 setDefaultTimeout(30000); 
 let driver;
 let consts = new constLogin();
-
 
 Given('Open the login page', async () =>{
 
@@ -121,12 +119,11 @@ Then('I should log in again', async () => {
     }catch (error) {
         console.error('Error:', error);
     }
-    await driver.wait(until.elementIsVisible(driver.findElement(By.id(consts.locator_password_by_id))), 5000);
+    await driver.wait(until.elementIsVisible(driver.findElement(By.id(consts.locator_password_by_id))), 10000);
     await loginPage.enterCredentialsPassword(consts.locator_password_by_id,consts.password_to_login);
     await loginPage.clickLoginButton(consts.locator_button_login_by_id);
 
 });
-
 
 Then('I should open the note created', async () => {
 
@@ -136,7 +133,7 @@ Then('I should open the note created', async () => {
     const mensajeTexto = await noteCreatedFound.getText();
     assert.strictEqual(mensajeTexto, 'Automation testing by Jhosedith');
 
-    await driver.findElement(By.xpath(consts.locator_to_click_note_created)).click();
+    await driver.findElement(By.xpath(consts.locator_click_created)).click();
 });
 
 Then('I should delete the note created', async () => {
@@ -185,6 +182,4 @@ Then('I should not log in with a correct email and incorrect password', async ()
     await loginPage.clickLoginButton(consts.locator_button_login_by_id);
     await driver.quit();
 });
-
-
 
