@@ -11,17 +11,18 @@ const assert = require('chai').assert;
 setDefaultTimeout(30000); 
 let driver;
 let consts = new constLogin();
+let loginPage;
+let homePage;
 
 Given('Open the login page', async () =>{
-
     driver = await createDriver();
+    loginPage = new LoginPage(driver);
+    homePage = new HomePage(driver);
     driver.manage().window().maximize();
     await navigateToURL(driver,'/intl/en');
-
 });
 
 When('I enter valid credentials', async () => {
-    const loginPage = new LoginPage(driver);
     await driver.wait(until.elementLocated(By.xpath(consts.locator_login_path)), 20000);
     await loginPage.clickLoginPage(consts.locator_login_path);
     await driver.wait(until.elementLocated(By.id(consts.locator_username_by_id)), 5000);
@@ -37,13 +38,11 @@ When('I enter valid credentials', async () => {
 });
 
 Then('click the login button', async () => {
-    const loginPage = new LoginPage(driver);
     await loginPage.clickLoginButton(consts.locator_button_login_by_id);
 });
 
 Then('I should write a note', async () => {
-    const homePage = new HomePage(driver);
-    //const elementLocator = By.id(); 
+
     await driver.wait(until.elementLocated(By.id(consts.locator_createNote_button_by_id)), 30000);
     await homePage.clickCreateNote(consts.locator_createNote_button_by_id);
 
@@ -75,7 +74,6 @@ Then('I should write a note', async () => {
 });
 
 Then('I should logout', async () => {
-    const homePage = new HomePage(driver);
 
     await driver.wait(until.elementLocated(By.xpath(consts.locator_option_logout_by_xpath)), 10000);
     await homePage.clickUserOptions(consts.locator_option_logout_by_xpath);
@@ -85,8 +83,8 @@ Then('I should logout', async () => {
 
     try {
         await driver.wait(until.elementLocated(By.id(consts.locator_message_logout_by_id)), 5000);
-
-        await driver.wait(until.elementLocated(By.id(consts.Locator_Confirm_Logout)), 5000);
+        
+        await driver.wait(until.elementLocated(By.id(consts.Locator_Confirm_Logout)), 8000);
         await homePage.clickConfirmLogout(consts.Locator_Confirm_Logout);
 
     } catch (error) {
@@ -110,7 +108,6 @@ Then('I should be redirected to the homepage', async () => {
 });*/
 
 Then('I should log in again', async () => {
-    const loginPage = new LoginPage(driver);
     
     await driver.wait(until.elementLocated(By.id(consts.locator_username_by_id)), 5000);
     await loginPage.enterCredentialsUsername(consts.locator_username_by_id,consts.email_to_login);
@@ -134,6 +131,7 @@ Then('I should open the note created', async () => {
     assert.strictEqual(mensajeTexto, 'Automation testing by Jhosedith');
 
     await driver.findElement(By.xpath(consts.locator_click_created)).click();
+
 });
 
 Then('I should delete the note created', async () => {
@@ -147,7 +145,6 @@ Then('I should delete the note created', async () => {
 });
 
 Then('I should log out again', async () => {
-    const homePage = new HomePage(driver);
 
     await driver.wait(until.elementLocated(By.xpath(consts.locator_option_logout_by_xpath)), 10000);
     await homePage.clickUserOptions(consts.locator_option_logout_by_xpath);
@@ -158,8 +155,10 @@ Then('I should log out again', async () => {
     try {
         await driver.wait(until.elementLocated(By.id(consts.locator_message_logout_by_id)), 20000);
 
-        await driver.wait(until.elementLocated(By.id(consts.Locator_Confirm_Logout)), 10000);
+        await driver.wait(until.elementLocated(By.id(consts.Locator_Confirm_Logout)), 8000);
         await homePage.clickConfirmLogout(consts.Locator_Confirm_Logout);
+        console.log('paso por aqui I should log out again');
+
     } catch (error) {
 
         console.log('Confirm message was not found, continue with the logout');
@@ -168,7 +167,6 @@ Then('I should log out again', async () => {
 });
 
 Then('I should not log in with a correct email and incorrect password', async () => {
-    const loginPage = new LoginPage(driver);
 
     await driver.wait(until.elementLocated(By.id(consts.locator_username_by_id)), 20000);
     await loginPage.enterCredentialsUsername(consts.locator_username_by_id,consts.email_to_login);
